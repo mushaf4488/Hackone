@@ -1,0 +1,97 @@
+ 
+Interface name : Wi-Fi 
+There are 6 networks currently visible. 
+
+SSID 1 : 
+    Network type            : Infrastructure
+    Authentication          : WPA2-Personal
+    Encryption              : CCMP 
+    BSSID 1                 : ee:a2:a0:43:9f:8d
+         Signal             : 22%  
+         Radio type         : 802.11ac
+         Band               : 5 GHz
+         Channel            : 161 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 6 12 24
+         Other rates (Mbps) : 9 18 36 48 54
+    BSSID 2                 : ee:a2:a0:43:9f:89
+         Signal             : 85%  
+         Radio type         : 802.11n
+         Band               : 2.4 GHz
+         Channel            : 1 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 1 2 5.5 11
+         Other rates (Mbps) : 6 9 12 18 24 36 48 54
+
+SSID 2 : Livewire student
+    Network type            : Infrastructure
+    Authentication          : WPA2-Personal
+    Encryption              : CCMP 
+    BSSID 1                 : 7a:4f:24:9d:60:29
+         Signal             : 93%  
+         Radio type         : 802.11n
+         Band               : 2.4 GHz
+         Channel            : 11 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 1 2 5.5 11
+         Other rates (Mbps) : 6 9 12 18 24 36 48 54
+
+SSID 3 : Livewire
+    Network type            : Infrastructure
+    Authentication          : WPA2-Personal
+    Encryption              : CCMP 
+    BSSID 1                 : 78:4f:24:9d:60:29
+         Signal             : 93%  
+         Radio type         : 802.11n
+         Band               : 2.4 GHz
+         Channel            : 11 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 1 2 5.5 11
+         Other rates (Mbps) : 6 9 12 18 24 36 48 54
+
+SSID 4 : A1ideaz
+    Network type            : Infrastructure
+    Authentication          : WPA2-Personal
+    Encryption              : CCMP 
+    BSSID 1                 : 7a:4f:24:ad:60:29
+         Signal             : 93%  
+         Radio type         : 802.11n
+         Band               : 2.4 GHz
+         Channel            : 11 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 1 2 5.5 11
+         Other rates (Mbps) : 6 9 12 18 24 36 48 54
+
+SSID 5 : Airtel_mahe_0431
+    Network type            : Infrastructure
+    Authentication          : WPA2-Personal
+    Encryption              : CCMP 
+    BSSID 1                 : ec:a2:a0:53:9f:89
+         Signal             : 84%  
+         Radio type         : 802.11n
+         Band               : 2.4 GHz
+         Channel            : 1 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 1 2 5.5 11
+         Other rates (Mbps) : 6 9 12 18 24 36 48 54
+
+SSID 6 : Livewire 5ghz
+    Network type            : Infrastructure
+    Authentication          : WPA2-Personal
+    Encryption              : CCMP 
+    BSSID 1                 : 78:4f:24:9d:60:2d
+         Signal             : 91%  
+         Radio type         : 802.11ac
+         Band               : 5 GHz
+         Channel            : 161 
+         QoS MSCS Supported    : 0
+         QoS Map Supported     : 0
+         Basic rates (Mbps) : 6 12 24
+         Other rates (Mbps) : 9 18 36 48 54
+
