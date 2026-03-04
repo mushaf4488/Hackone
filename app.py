@@ -150,4 +150,4 @@ def run_scan(target, controller):
         socketio.emit('scan_update', {'message': "WARNING: SCAN WAS ABORTED BEFORE COMPLETION."})
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, host='0.0.0.0', port=5000)
+    socketio = SocketIO(app, async_mode='threading')
