@@ -1,0 +1,924 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Module Tabs -->
+<ul class="nav nav-pills mb-4" id="moduleTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold border" id="web-tab" data-bs-toggle="pill" data-bs-target="#web-scanner"
+            type="button" role="tab">Web Scan</button>
+    </li>
+    <li class="nav-item ms-2" role="presentation">
+        <button class="nav-link fw-bold border" id="network-tab" data-bs-toggle="pill" data-bs-target="#network-scanner"
+            type="button" role="tab">Network Map</button>
+    </li>
+    <li class="nav-item ms-2" role="presentation">
+        <button class="nav-link fw-bold border" id="wifi-tab" data-bs-toggle="pill" data-bs-target="#wifi-scanner"
+            type="button" role="tab">WiFi Scan</button>
+    </li>
+    <li class="nav-item ms-2" role="presentation">
+        <button class="nav-link fw-bold border border-danger text-danger" id="auth-tab" data-bs-toggle="pill"
+            data-bs-target="#auth-scanner" type="button" role="tab">Auth Audit</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="moduleTabsContent">
+    <!-- Web Scanner Tab -->
+    <div class="tab-pane fade show active" id="web-scanner" role="tabpanel">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card p-3">
+                    <div class="card-body">
+                        <form id="scanForm" class="d-flex flex-column flex-md-row gap-3">
+                            <input type="text" class="form-control form-control-lg" id="target" name="target"
+                                placeholder="Enter target IP or Domain (e.g., https://example.com)..." required>
+                            <button type="submit" class="btn btn-primary shadow-sm"
+                                style="min-width: 160px; font-size:1.1rem; font-weight: 500;">
+                                Initialize Scan
+                            </button>
+                        </form>
+                        <div id="controls" class="d-flex gap-2 justify-content-center mt-3"
+                            style="display:none !important;">
+                            <button id="btnPause" class="btn btn-warning flex-grow-1"><svg width="18" height="18"
+                                    class="me-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg> Pause Engine</button>
+                            <button id="btnResume" class="btn btn-info flex-grow-1" style="display:none;"><svg
+                                    width="18" height="18" class="me-1" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg> Resume Engine</button>
+                            <button id="btnStop" class="btn btn-danger flex-grow-1"><svg width="18" height="18"
+                                    class="me-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                                </svg> Terminate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="row g-4 mb-4" id="dashboardCards" style="display:none;">
+            <!-- Recon Card -->
+            <div class="col-md-3">
+                <div class="card h-100" id="card-recon">
+                    <div class="card-header text-center">
+                        RECONNAISSANCE
+                    </div>
+                    <div class="card-body text-center p-3">
+                        <div class="display-6 text-primary mb-3" id="stat-recon">-</div>
+                        <div class="badge w-100 mb-3" id="status-recon">PENDING
+                        </div>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-warning btn-sm"
+                                onclick="controlModule('pause', 'recon')" title="Pause">⏸</button>
+                            <button type="button" class="btn btn-info btn-sm text-white"
+                                onclick="controlModule('resume', 'recon')" title="Resume">▶</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="controlModule('stop', 'recon')"
+                                title="Stop">⏹</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Crawler Card -->
+            <div class="col-md-3">
+                <div class="card h-100" id="card-crawl">
+                    <div class="card-header text-center">
+                        CRAWLER
+                    </div>
+                    <div class="card-body text-center p-3">
+                        <div class="display-6 text-primary mb-3" id="stat-crawl">-</div>
+                        <div class="badge w-100 mb-3" id="status-crawl">PENDING
+                        </div>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-warning btn-sm"
+                                onclick="controlModule('pause', 'crawl')" title="Pause">⏸</button>
+                            <button type="button" class="btn btn-info btn-sm text-white"
+                                onclick="controlModule('resume', 'crawl')" title="Resume">▶</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="controlModule('stop', 'crawl')"
+                                title="Stop">⏹</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- SSL Card -->
+            <div class="col-md-3">
+                <div class="card h-100" id="card-ssl">
+                    <div class="card-header text-center">
+                        SSL SECURITY
+                    </div>
+                    <div class="card-body text-center p-3">
+                        <div class="display-6 text-primary mb-3" id="stat-ssl">-</div>
+                        <div class="badge w-100 mb-3" id="status-ssl">PENDING
+                        </div>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-warning btn-sm" onclick="controlModule('pause', 'ssl')"
+                                title="Pause">⏸</button>
+                            <button type="button" class="btn btn-info btn-sm text-white"
+                                onclick="controlModule('resume', 'ssl')" title="Resume">▶</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="controlModule('stop', 'ssl')"
+                                title="Stop">⏹</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Vuln Card -->
+            <div class="col-md-3">
+                <div class="card h-100" id="card-vuln">
+                    <div class="card-header text-center">
+                        VULNERABILITIES
+                    </div>
+                    <div class="card-body text-center p-3">
+                        <div class="display-6 text-danger mb-3" id="stat-vuln">-</div>
+                        <div class="badge w-100 mb-3" id="status-vuln">PENDING
+                        </div>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-warning btn-sm"
+                                onclick="controlModule('pause', 'vuln')" title="Pause">⏸</button>
+                            <button type="button" class="btn btn-info btn-sm text-white"
+                                onclick="controlModule('resume', 'vuln')" title="Resume">▶</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="controlModule('stop', 'vuln')"
+                                title="Stop">⏹</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="row" id="scanResults" style="display:none;">
+            <div class="col-12">
+                <div class="card shadow-sm p-3">
+                    <div class="card-header border-0 pb-0">
+                        <ul class="nav nav-tabs" id="scanTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="console-tab" data-bs-toggle="tab"
+                                    data-bs-target="#console" type="button" role="tab">CONSOLE</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="recon-tab" data-bs-toggle="tab" data-bs-target="#recon"
+                                    type="button" role="tab">RECON</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="links-tab" data-bs-toggle="tab" data-bs-target="#links"
+                                    type="button" role="tab">LINKS</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="ssl-tab" data-bs-toggle="tab" data-bs-target="#ssl"
+                                    type="button" role="tab">SSL DATA</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-primary fw-bold" id="subdomains-tab" data-bs-toggle="tab"
+                                    data-bs-target="#subdomains" type="button" role="tab">SUBDOMAINS</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link font-weight-bold text-danger" id="findings-tab"
+                                    data-bs-toggle="tab" data-bs-target="#findings" type="button"
+                                    role="tab">VULNS</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content pt-3" id="scanTabsContent">
+                            <!-- Console Tab -->
+                            <div class="tab-pane fade show active" id="console" role="tabpanel">
+                                <div id="logs" class="terminal-logs" style="height: 400px; overflow-y: auto;"></div>
+                            </div>
+
+                            <!-- Recon Tab -->
+                            <div class="tab-pane fade" id="recon" role="tabpanel">
+                                <div class="row g-4">
+                                    <div class="col-md-3">
+                                        <h6 class="text-primary fw-bold border-bottom border-secondary pb-2">OPEN PORTS
+                                        </h6>
+                                        <div id="recon-ports"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6 class="text-primary fw-bold border-bottom border-secondary pb-2">TECH STACK
+                                        </h6>
+                                        <div id="recon-tech"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6 class="text-primary fw-bold border-bottom border-secondary pb-2">NETWORK
+                                            INFO</h6>
+                                        <div id="recon-ip"></div>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h6 class="text-primary fw-bold border-bottom border-secondary pb-2">DNS
+                                            ENUMERATION
+                                        </h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 15%">TYPE</th>
+                                                        <th>RECORD / DATA</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="recon-dns">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Links Tab -->
+                            <div class="tab-pane fade" id="links" role="tabpanel">
+                                <h6 class="text-primary fw-bold border-bottom border-secondary pb-2 mb-3">DISCOVERED
+                                    URLs</h6>
+                                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 10%">#</th>
+                                                <th style="width: 15%">METHOD</th>
+                                                <th>URL PATH</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="links-body">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Subdomains Tab -->
+                            <div class="tab-pane fade" id="subdomains" role="tabpanel">
+                                <h6 class="text-primary fw-bold border-bottom border-secondary pb-2 mb-3">DISCOVERED
+                                    SUBDOMAINS</h6>
+                                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 10%">#</th>
+                                                <th>Subdomain Name</th>
+                                                <th style="width: 20%">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="subdomains-body">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- SSL Tab -->
+                            <div class="tab-pane fade" id="ssl" role="tabpanel">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-8">
+                                        <h6 class="text-primary fw-bold border-bottom border-secondary pb-2 mb-3">SSL
+                                            CERTIFICATE DETAILS</h6>
+                                        <div class="card p-3">
+                                            <div class="card-body" id="ssl-details">
+                                                <div class="text-muted">AWAITING STREAM...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Findings Tab -->
+                            <div class="tab-pane fade" id="findings" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                    <h6 class="text-danger fw-bold mb-0">VULNERABILITIES DETECTED</h6>
+                                </div>
+                                <div id="findings-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsBtn" class="mt-4 text-center" style="display:none;">
+            <a href="/results" class="btn btn-success px-4 py-2 shadow-sm rounded-pill fw-medium">View Detailed
+                Report</a>
+        </div>
+
+    </div> <!-- End Web Scanner Tab -->
+
+    <!-- Network Scanner Tab -->
+    <div class="tab-pane fade" id="network-scanner" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-4 border-warning">
+                    <div class="card-body">
+                        <form id="networkForm" class="d-flex flex-column flex-md-row gap-3">
+                            <input type="text" class="form-control form-control-lg" id="net-target" name="target"
+                                placeholder="Enter target IP or Subnet (e.g., 192.168.1.1 or 10.0.0.0/24)..." required>
+                            <button type="submit" class="btn btn-warning shadow-sm text-dark"
+                                style="min-width: 160px; font-size:1.1rem; font-weight: 500;">
+                                Start Sweep
+                            </button>
+                        </form>
+
+                        <div id="net-logs" class="terminal-logs mt-4" style="height: 150px; overflow-y: auto;">
+                            <div class="text-muted">Awaiting network initialisation...</div>
+                        </div>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%">IPv4 Address</th>
+                                        <th style="width: 20%">Status</th>
+                                        <th>Open TCP Ports</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="net-body">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">No hosts discovered yet.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WiFi Scanner Tab -->
+    <div class="tab-pane fade" id="wifi-scanner" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-4 border-info">
+                    <div class="card-body">
+                        <form id="wifiForm" class="d-flex flex-column flex-md-row gap-3">
+                            <button type="submit" id="btnWifiStart" class="btn btn-info shadow-sm text-dark flex-grow-1"
+                                style="font-size:1.1rem; font-weight: 500;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="me-2"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                                    <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                                </svg>
+                                Start Continuous WiFi Scan
+                            </button>
+                            <button type="button" id="btnWifiStop" class="btn btn-danger shadow-sm flex-grow-1"
+                                style="display:none; font-size:1.1rem; font-weight: 500;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="me-2"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                                </svg>
+                                Stop Scanner
+                            </button>
+                        </form>
+
+                        <div id="wifi-logs" class="terminal-logs mt-4" style="height: 150px; overflow-y: auto;">
+                            <div class="text-muted">Awaiting wireless adapter initialization...</div>
+                        </div>
+
+                        <!-- Active Connected Interface Box -->
+                        <div class="card mt-4 border-secondary border-opacity-25" style="background: rgba(0,0,0,0.01);">
+                            <div class="card-body">
+                                <h6
+                                    class="text-info fw-bold mb-3 border-bottom pb-2 border-secondary border-opacity-25">
+                                    ACTIVE CONNECTED INTERFACE</h6>
+                                <div class="row" id="wifi-interface-box">
+                                    <div class="col-12 text-center text-muted py-3">Click Start Scan to query native
+                                        interface details.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive mt-4">
+                            <h6 class="text-info fw-bold mb-3 border-bottom pb-2 border-secondary border-opacity-25">
+                                SURROUNDING VISIBLE NETWORKS</h6>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%">SSID (Network Name)</th>
+                                        <th style="width: 20%">BSSID (MAC)</th>
+                                        <th style="width: 15%">Signal</th>
+                                        <th style="width: 15%">Channel</th>
+                                        <th>Security / Auth</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wifi-body">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">No access points discovered
+                                            yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End WiFi Scanner Tab -->
+
+    <!-- Auth Scanner Tab -->
+    <div class="tab-pane fade" id="auth-scanner" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-4 border-danger">
+                    <div class="card-body">
+                        <form id="authForm" class="d-flex flex-column flex-md-row gap-3">
+                            <input type="text" class="form-control form-control-lg border-danger" id="auth-target"
+                                name="target" placeholder="Enter target IP or Domain for Auth Audit..." required>
+                            <button type="submit" class="btn btn-danger shadow-sm text-white"
+                                style="min-width: 160px; font-size:1.1rem; font-weight: 500;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="me-2"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                                    </path>
+                                </svg>
+                                Launch Auth Audit
+                            </button>
+                        </form>
+
+                        <div id="auth-logs" class="terminal-logs mt-4" style="height: 400px; overflow-y: auto;">
+                            <div class="text-muted">Awaiting authentication mapping and auditing...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End Auth Scanner Tab -->
+
+</div> <!-- End global tab content -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const socket = io();
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    const scanForm = document.getElementById('scanForm');
+    const logsDiv = document.getElementById('logs');
+    const dashboardCards = document.getElementById('dashboardCards');
+    const scanResults = document.getElementById('scanResults');
+    const resultsBtn = document.getElementById('resultsBtn');
+
+    // Counters
+    let findingsCount = 0;
+
+    function updateStatus(id, status) {
+        const el = document.getElementById(`status-${id}`);
+        const card = document.getElementById(`card-${id}`);
+
+        el.className = 'badge w-100';
+        if (status === 'running') {
+            el.classList.add('bg-primary');
+            el.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> RUNNING';
+            card.classList.replace('border-success', 'border-primary');
+        } else if (status === 'completed') {
+            el.classList.add('bg-success');
+            el.textContent = 'COMPLETED';
+            card.classList.replace('border-primary', 'border-success');
+        } else if (status === 'failed') {
+            el.classList.add('bg-danger');
+            el.textContent = 'FAILED';
+            card.classList.replace('border-primary', 'border-danger');
+        } else {
+            el.classList.add('bg-secondary');
+            el.textContent = 'PENDING';
+        }
+    }
+
+    scanForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const target = document.getElementById('target').value;
+
+        // Reset UI
+        logsDiv.innerHTML = '';
+        document.getElementById('links-body').innerHTML = '';
+        document.getElementById('findings-container').innerHTML = '';
+        document.getElementById('recon-ports').innerHTML = '';
+        document.getElementById('subdomains-body').innerHTML = '';
+        document.getElementById('recon-tech').innerHTML = '';
+        document.getElementById('recon-ip').innerHTML = '';
+        document.getElementById('recon-dns').innerHTML = '';
+
+        ['recon', 'crawl', 'ssl', 'vuln'].forEach(id => {
+            document.getElementById(`stat-${id}`).textContent = '-';
+            updateStatus(id, 'pending');
+        });
+
+        findingsCount = 0;
+
+        fetch('/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `target=${encodeURIComponent(target)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                dashboardCards.style.display = 'flex';
+                scanResults.style.display = 'block';
+                document.getElementById('controls').style.setProperty('display', 'flex', 'important');
+                document.getElementById('btnPause').style.display = 'block';
+                document.getElementById('btnResume').style.display = 'none';
+                logsDiv.innerHTML += `<div class="text-info fw-medium">Initiating scan on target: ${data.target}</div>`;
+            });
+    });
+
+    document.getElementById('btnPause').addEventListener('click', () => {
+        fetch('/scan/pause', { method: 'POST' }).then(() => {
+            document.getElementById('btnPause').style.display = 'none';
+            document.getElementById('btnResume').style.display = 'block';
+        });
+    });
+
+    document.getElementById('btnResume').addEventListener('click', () => {
+        fetch('/scan/resume', { method: 'POST' }).then(() => {
+            document.getElementById('btnResume').style.display = 'none';
+            document.getElementById('btnPause').style.display = 'block';
+        });
+    });
+
+    document.getElementById('btnStop').addEventListener('click', () => {
+        fetch('/scan/stop', { method: 'POST' }).then(() => {
+            document.getElementById('controls').style.setProperty('display', 'none', 'important');
+        });
+    });
+
+    // Handle individual module commands
+    function controlModule(action, moduleId) {
+        fetch(`/scan/${action}/${moduleId}`, { method: 'POST' })
+            .catch(e => console.error("Error communicating with scanner backend.", e));
+    }
+
+    socket.on('scan_update', function (msg) {
+        // Log to console
+        const div = document.createElement('div');
+        div.className = 'text-success';
+        div.textContent = `[System] ${msg.message}`;
+        logsDiv.appendChild(div);
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+
+        // Update Process Status
+        if (msg.process_info) {
+            const name = msg.process_info.name;
+            const status = msg.process_info.status;
+
+            if (name === 'Reconnaissance') updateStatus('recon', status);
+            if (name === 'Crawling') updateStatus('crawl', status);
+            if (name === 'SSL Analysis') updateStatus('ssl', status);
+            if (name === 'Vulnerability Detection') updateStatus('vuln', status);
+            // Plugins run under Vuln Detection, so we keep Vuln as running
+            if (name.includes('Plugin') || name.includes('Injection') || name.includes('XSS')) {
+                updateStatus('vuln', 'running');
+            }
+        }
+
+        // Handle Result Data
+        if (msg.result_data) {
+            const type = msg.result_data.type;
+            const data = msg.result_data.data;
+
+            if (type === 'recon') {
+                // Update Recon Stats
+                const ports = data.open_ports || [];
+                document.getElementById('stat-recon').textContent = `${ports.length} Ports`;
+
+                // Update Recon Tab
+                let portsHtml = '<ul class="list-group list-group-flush">';
+                if (ports.length === 0) {
+                    portsHtml += '<li class="list-group-item text-muted">No open ports found.</li>';
+                } else {
+                    ports.forEach(p => {
+                        portsHtml += `<li class="list-group-item text-primary fw-medium"><span class="badge w-75 me-2 border-primary text-primary">OPEN</span> Port ${escapeHTML(p)}</li>`;
+                    });
+                }
+                portsHtml += '</ul>';
+                document.getElementById('recon-ports').innerHTML = portsHtml;
+
+                // Update Subdomains Tab
+                const subs = data.subdomains || [];
+                const subsBody = document.getElementById('subdomains-body');
+                subsBody.innerHTML = '';
+                if (subs.length === 0) {
+                    subsBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No subdomains discovered.</td></tr>';
+                } else {
+                    subs.forEach((s, idx) => {
+                        let statusBadge = '<span class="badge bg-success">Mapped</span>';
+                        subsBody.innerHTML += `
+                            <tr>
+                                <td class="text-muted fw-bold">${idx + 1}</td>
+                                <td class="font-monospace text-info">${escapeHTML(s)}</td>
+                                <td>${statusBadge}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // Update Tech Stack
+                const tech = data.tech_stack || [];
+                let techHtml = '<ul class="list-group list-group-flush">';
+                if (tech.length === 0 || (tech.length === 1 && tech[0].includes("Error"))) {
+                    techHtml += '<li class="list-group-item text-muted">No distinct tech stack headers found.</li>';
+                } else {
+                    tech.forEach(t => {
+                        techHtml += `<li class="list-group-item text-info mb-1">${escapeHTML(t)}</li>`;
+                    });
+                }
+                techHtml += '</ul>';
+                document.getElementById('recon-tech').innerHTML = techHtml;
+
+                // Update Network / IP Info
+                const ipInfo = data.ip_info || {};
+                let ipHtml = '<ul class="list-group list-group-flush">';
+                if (Object.keys(ipInfo).length === 0 || ipInfo.Error) {
+                    ipHtml += '<li class="list-group-item text-muted">No IP info found or error occurred.</li>';
+                } else {
+                    for (const [key, value] of Object.entries(ipInfo)) {
+                        ipHtml += `<li class="list-group-item"><strong>${escapeHTML(key)}:</strong> <span class="text-primary">${escapeHTML(value)}</span></li>`;
+                    }
+                }
+                ipHtml += '</ul>';
+                document.getElementById('recon-ip').innerHTML = ipHtml;
+
+                // Update DNS Enumeration
+                const dnsRecords = data.dns_enum || [];
+                let dnsHtml = '';
+                if (dnsRecords.length === 0) {
+                    dnsHtml = '<tr><td colspan="2" class="text-white-50">No DNS records found or lookup failed.</td></tr>';
+                } else {
+                    dnsRecords.forEach(r => {
+                        dnsHtml += `<tr>
+                            <td class="text-warning">${escapeHTML(r.type)}</td>
+                            <td class="text-info">${escapeHTML(r.data)}</td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('recon-dns').innerHTML = dnsHtml;
+            }
+
+            if (type === 'crawl') {
+                // Update Crawler Stats
+                const count = data.length || 0;
+                document.getElementById('stat-crawl').textContent = `${count} URLs`;
+
+                // Update Links Tab
+                const tbody = document.getElementById('links-body');
+                tbody.innerHTML = '';
+                data.forEach((item, index) => {
+                    let methodClass = 'text-secondary';
+                    if (item.method === 'GET') methodClass = 'text-success';
+                    else if (item.method === 'POST') methodClass = 'text-warning';
+                    else if (item.method === 'PUT' || item.method === 'PATCH') methodClass = 'text-info';
+                    else if (item.method === 'DELETE') methodClass = 'text-danger';
+                    else if (item.method === 'OPTIONS') methodClass = 'text-primary';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="text-muted fw-bold">${index + 1}</td>
+                            <td class="font-monospace fw-bold ${escapeHTML(methodClass)}">[${escapeHTML(item.method)}]</td>
+                            <td class="font-monospace small"><a href="${escapeHTML(item.url)}" target="_blank" class="text-decoration-none text-primary">${escapeHTML(item.url)}</a></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            if (type === 'ssl') {
+                document.getElementById('stat-ssl').textContent = 'DONE';
+
+                let sslHtml = '<ul class="list-group list-group-flush">';
+                if (data) {
+                    sslHtml += `<li class="list-group-item py-3"><strong>Issuer:</strong> <span class="text-info font-monospace small">${escapeHTML(JSON.stringify(data.issuer))}</span></li>`;
+                    sslHtml += `<li class="list-group-item py-3"><strong>Subject:</strong> <span class="text-info font-monospace small">${escapeHTML(JSON.stringify(data.subject))}</span></li>`;
+                    sslHtml += `<li class="list-group-item py-3"><strong>Version:</strong> ${escapeHTML(data.version)}</li>`;
+                    sslHtml += `<li class="list-group-item py-3"><strong>Cipher:</strong> <span>${escapeHTML(data.cipher)}</span></li>`;
+                    sslHtml += `<li class="list-group-item py-3"><strong>Expiry:</strong> <span class="text-warning">${escapeHTML(data.expiry)}</span></li>`;
+                } else {
+                    sslHtml += '<li class="list-group-item text-danger">SSL Analysis Failed or No Data</li>';
+                }
+                sslHtml += '</ul>';
+                document.getElementById('ssl-details').innerHTML = sslHtml;
+            }
+
+            if (type === 'vuln') {
+                // Update Findings Stats
+                const newFindings = data.length || 0;
+                findingsCount += newFindings;
+                document.getElementById('stat-vuln').textContent = `${findingsCount} Vulns`;
+
+                // Update Findings Tab
+                const container = document.getElementById('findings-container');
+                data.forEach(f => {
+                    const severityClass = f.severity === 'High' ? 'danger' : (f.severity === 'Medium' ? 'warning' : 'info');
+                    container.innerHTML += `
+                        <div class="alert text-${severityClass} mb-3 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center mb-2 border-bottom border-dark pb-2">
+                                <h6 class="fw-bold mb-0" style="font-family: var(--font-heading); letter-spacing: 1px;">
+                                    <svg width="18" height="18" class="me-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                    ${escapeHTML(f.type)}
+                                </h6>
+                                <span class="badge border border-${severityClass} text-${severityClass}" style="background:transparent;">${escapeHTML(f.severity)}</span>
+                            </div>
+                            <div class="text-white-50 small lh-base" style="font-family: var(--font-mono);">${escapeHTML(f.description || 'No data found.')}</div>
+                            <div class="small fw-medium mt-2 text-warning"><span class="text-muted">Target:</span> <span class="font-monospace">${escapeHTML(f.location || 'Unknown')}</span></div>
+                        </div>
+                    `;
+                });
+            }
+        }
+    });
+
+    socket.on('scan_complete', function (msg) {
+        const div = document.createElement('div');
+        div.className = 'text-warning fw-bold mt-2';
+        div.textContent = `Scan completed successfully. Finalizing report.`;
+        logsDiv.appendChild(div);
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+        resultsBtn.style.display = 'block';
+        document.getElementById('controls').style.setProperty('display', 'none', 'important');
+
+        updateStatus('vuln', 'completed'); // Ensure vuln is marked complete
+    });
+
+    // --- Network Scanner Logic ---
+    const networkForm = document.getElementById('networkForm');
+    const netLogs = document.getElementById('net-logs');
+    const netBody = document.getElementById('net-body');
+    let firstNetResult = true;
+
+    networkForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const target = document.getElementById('net-target').value;
+        netLogs.innerHTML = '';
+        netBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">Scanning in progress...</td></tr>';
+        firstNetResult = true;
+
+        fetch('/network_scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `target=${encodeURIComponent(target)}`
+        });
+    });
+
+    socket.on('net_scan_update', function (msg) {
+        const div = document.createElement('div');
+        div.className = 'text-warning';
+        div.textContent = `[NetScanner] ${msg.message}`;
+        netLogs.appendChild(div);
+        netLogs.scrollTop = netLogs.scrollHeight;
+    });
+
+    socket.on('net_scan_result', function (data) {
+        if (firstNetResult) {
+            netBody.innerHTML = '';
+            firstNetResult = false;
+        }
+
+        const openPorts = data.ports.map(p => `<span class="badge bg-primary text-white me-1">${escapeHTML(p)}</span>`).join('');
+
+        netBody.innerHTML += `
+            <tr>
+                <td class="font-monospace text-info align-middle">${escapeHTML(data.ip)}</td>
+                <td class="align-middle"><span class="badge bg-success">${escapeHTML(data.status)}</span></td>
+                <td class="align-middle">${openPorts || '<span class="text-muted small">None</span>'}</td>
+            </tr>
+        `;
+    });
+
+    // --- WiFi Scanner Logic ---
+    const wifiForm = document.getElementById('wifiForm');
+    const wifiLogs = document.getElementById('wifi-logs');
+    const wifiBody = document.getElementById('wifi-body');
+    const btnWifiStart = document.getElementById('btnWifiStart');
+    const btnWifiStop = document.getElementById('btnWifiStop');
+    let firstWifiResult = true;
+
+    wifiForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        wifiLogs.innerHTML = '';
+        wifiBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Scanning airwaves...</td></tr>';
+
+        btnWifiStart.style.display = 'none';
+        btnWifiStop.style.display = 'block';
+        firstWifiResult = true;
+
+        fetch('/wifi_scan', { method: 'POST' });
+    });
+
+    btnWifiStop.addEventListener('click', function () {
+        fetch('/wifi_scan/stop', { method: 'POST' }).then(() => {
+            btnWifiStop.style.display = 'none';
+            btnWifiStart.style.display = 'block';
+        });
+    });
+
+    socket.on('wifi_scan_update', function (msg) {
+        const div = document.createElement('div');
+        div.className = 'text-info';
+        div.textContent = `[WifiScanner] ${msg.message}`;
+        wifiLogs.appendChild(div);
+        wifiLogs.scrollTop = wifiLogs.scrollHeight;
+    });
+
+    socket.on('wifi_scan_interface', function (data) {
+        const interfaceBox = document.getElementById('wifi-interface-box');
+        if (data.state && data.state.toLowerCase() === 'connected') {
+            interfaceBox.innerHTML = `
+                <div class="col-md-3 mb-2">
+                    <div class="small text-muted mb-1">Target SSID</div>
+                    <div class="fw-bold text-main fs-5">${escapeHTML(data.ssid)}</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="small text-muted mb-1">Access Point (BSSID)</div>
+                    <div class="font-monospace text-primary">${escapeHTML(data.bssid)}</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="small text-muted mb-1">Signal & Radio</div>
+                    <div><span class="badge bg-success me-1">${escapeHTML(data.signal)}</span> <small>${escapeHTML(data.radio)}</small></div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="small text-muted mb-1">Auth & Channel</div>
+                    <div>${escapeHTML(data.auth)} (CH ${escapeHTML(data.channel)})</div>
+                </div>
+                <div class="col-12 mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex gap-4">
+                    <div class="small"><span class="text-muted">TX:</span> <span class="text-success">${escapeHTML(data.tx)}</span></div>
+                    <div class="small"><span class="text-muted">RX:</span> <span class="text-info">${escapeHTML(data.rx)}</span></div>
+                </div>
+            `;
+        } else {
+            interfaceBox.innerHTML = `<div class="col-12 text-center text-muted py-3">Adapter disconnected or parsing failed. (${data.state})</div>`;
+        }
+    });
+
+    socket.on('wifi_scan_clear', function (msg) {
+        wifiBody.innerHTML = '';
+    });
+
+    socket.on('wifi_scan_result', function (data) {
+        if (firstWifiResult) {
+            wifiBody.innerHTML = '';
+            firstWifiResult = false;
+        }
+
+        let securityBadge = '<span class="badge bg-secondary">Unknown</span>';
+        if (data.auth && data.auth.includes('WPA3')) securityBadge = `<span class="badge bg-success">${escapeHTML(data.auth)}</span>`;
+        else if (data.auth && data.auth.includes('WPA2')) securityBadge = `<span class="badge bg-primary">${escapeHTML(data.auth)}</span>`;
+        else if (data.auth && data.auth.includes('WEP')) securityBadge = `<span class="badge bg-danger">WEP (Insecure)</span>`;
+        else if (data.auth && data.auth.includes('Open')) securityBadge = `<span class="badge bg-danger">OPEN (No Auth)</span>`;
+        else if (data.auth) securityBadge = `<span class="badge bg-warning text-dark">${escapeHTML(data.auth)}</span>`;
+
+        wifiBody.innerHTML += `
+            <tr>
+                <td class="fw-bold text-main align-middle">${escapeHTML(data.ssid)}</td>
+                <td class="font-monospace text-muted small align-middle">${escapeHTML(data.bssid)}</td>
+                <td class="align-middle">
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">${escapeHTML(data.signal)}</span>
+                        <div class="progress flex-grow-1" style="height: 6px; background-color: var(--border-light);">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: ${escapeHTML(data.signal)};"></div>
+                        </div>
+                    </div>
+                </td>
+                <td class="align-middle"><span class="badge border border-info text-info" style="background:transparent;">CH ${escapeHTML(data.channel)}</span></td>
+                <td class="align-middle">${securityBadge}<br><small class="text-muted">${escapeHTML(data.encrypt)}</small></td>
+            </tr>
+        `;
+    });
+
+    // --- Auth Scanner Logic ---
+    const authForm = document.getElementById('authForm');
+    const authLogs = document.getElementById('auth-logs');
+
+    authForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const target = document.getElementById('auth-target').value;
+        authLogs.innerHTML = `<div class="text-muted">Initializing payload stream against ${target}...</div>`;
+
+        fetch('/auth_scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `target=${encodeURIComponent(target)}`
+        });
+    });
+
+    socket.on('auth_scan_update', function (msg) {
+        const div = document.createElement('div');
+        // Apply coloring based on danger level
+        if (msg.level === 'danger') div.className = 'text-danger fw-bold';
+        else if (msg.level === 'warning') div.className = 'text-warning';
+        else if (msg.level === 'success') div.className = 'text-success';
+        else div.className = 'text-info';
+
+        div.textContent = `[AuthModule] ${msg.message}`;
+        authLogs.appendChild(div);
+        authLogs.scrollTop = authLogs.scrollHeight;
+    });
+</script>
+{% endblock %}

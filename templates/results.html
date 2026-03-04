@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-main fw-bold mb-4">Scan Analysis Report</h2>
+
+        <!-- Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-black border-danger">
+                    <div class="card-body text-center">
+                        <h3 class="text-danger">{{ results.findings | selectattr("severity", "equalto", "Critical") |
+                            list | length }}</h3>
+                        <small class="text-muted">CRITICAL</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-black border-warning">
+                    <div class="card-body text-center">
+                        <h3 class="text-warning">{{ results.findings | selectattr("severity", "equalto", "High") | list
+                            | length }}</h3>
+                        <small class="text-muted">HIGH</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-black border-primary">
+                    <div class="card-body text-center">
+                        <h3 class="text-primary">{{ results.findings | selectattr("severity", "equalto", "Medium") |
+                            list | length }}</h3>
+                        <small class="text-muted">MEDIUM</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-black border-info">
+                    <div class="card-body text-center">
+                        <h3 class="text-info">{{ results.findings | selectattr("severity", "equalto", "Low") | list |
+                            length }}</h3>
+                        <small class="text-muted">LOW</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Findings List -->
+        <div class="card bg-black border-success">
+            <div class="card-header bg-dark text-main border-success">
+                <h5 class="mb-0">Detailed Vulnerability Findings</h5>
+            </div>
+            <div class="card-body">
+                {% if results.findings %}
+                <div class="accordion" id="findingsAccordion">
+                    {% for finding in results.findings %}
+                    <div class="accordion-item bg-dark border-success mb-2">
+                        <h2 class="accordion-header" id="heading{{ loop.index }}">
+                            <button
+                                class="accordion-button collapsed bg-black text-{{ 'danger' if finding.severity == 'Critical' or finding.severity == 'High' else 'info' }}"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+                                [{{ finding.severity }}] {{ finding.title }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ loop.index }}" class="accordion-collapse collapse"
+                            data-bs-parent="#findingsAccordion">
+                            <div class="accordion-body text-light">
+                                <p><strong>Endpoint:</strong> <span class="text-warning">{{ finding.affected_endpoint
+                                        }}</span></p>
+                                <p><strong>Description:</strong> {{ finding.description }}</p>
+                                <p><strong>Remediation:</strong> {{ finding.remediation }}</p>
+                                <div class="alert alert-secondary bg-black border-secondary text-muted">
+                                    <code>{{ finding.proof }}</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted p-4">
+                    No vulnerabilities detected. The system appears secure.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Mapped Links Section -->
+        <div class="card bg-black border-info mt-4">
+            <div class="card-header bg-dark text-main border-info d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Mapped Endpoints</h5>
+                <span class="badge bg-info text-dark">{{ results.urls | length }} URLs Discovered</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover table-dark mb-0">
+                        <thead class="sticky-top bg-dark">
+                            <tr>
+                                <th style="width: 15%" class="ps-4">METHOD</th>
+                                <th>URL PATH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if results.urls %}
+                            {% for endpoint in results.urls %}
+                            <tr>
+                                <td class="ps-4">
+                                    {% if endpoint.method == 'GET' %}
+                                    <span class="badge border border-success text-success"
+                                        style="background:transparent;">GET</span>
+                                    {% elif endpoint.method == 'POST' %}
+                                    <span class="badge border border-warning text-warning"
+                                        style="background:transparent;">POST</span>
+                                    {% elif endpoint.method == 'PUT' or endpoint.method == 'PATCH' %}
+                                    <span class="badge border border-info text-info" style="background:transparent;">{{
+                                        endpoint.method }}</span>
+                                    {% elif endpoint.method == 'DELETE' %}
+                                    <span class="badge border border-danger text-danger"
+                                        style="background:transparent;">DELETE</span>
+                                    {% elif endpoint.method == 'OPTIONS' %}
+                                    <span class="badge border border-primary text-primary"
+                                        style="background:transparent;">OPTIONS</span>
+                                    {% else %}
+                                    <span class="badge border border-secondary text-secondary"
+                                        style="background:transparent;">{{ endpoint.method }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="font-monospace small">
+                                    <a href="{{ endpoint.url }}" target="_blank"
+                                        class="text-info text-decoration-none">{{ endpoint.url }}</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted p-4">No endpoints discovered or crawling
+                                    module was aborted.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 mb-5 text-center">
+            <a href="/" class="btn btn-primary btn-lg px-5 shadow-sm">Start New Scan</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

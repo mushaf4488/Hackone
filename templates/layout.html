@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hack1 Web Scanner</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Premium Soft Theme CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+
+<body class="elegant-theme">
+    <nav class="navbar navbar-expand-lg navbar-dark elegant-navbar">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/"
+                style="font-family: var(--font-heading); font-size: 1.5rem; letter-spacing: 1px; color: var(--text-main); text-decoration: none;">
+                <span style="font-size: 1.8rem; line-height: 1; color: var(--primary);">⬡</span>
+                <div class="d-flex flex-column" style="line-height:1;">
+                    <span style="letter-spacing: 0px;">HACK<span style="color: var(--primary);">1</span></span>
+                    <span
+                        style="font-size:0.65rem; color:var(--text-muted); font-family:var(--font-heading); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px;">
+                        System initialized by Mushaf Rasein</span>
+                </div>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+    <script>
+        // Disable Right Click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable Keyboard Shortcuts
+        document.addEventListener('keydown', function (event) {
+            // F12
+            if (event.keyCode === 123) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I or Cmd+Option+I
+            else if ((event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.metaKey && event.altKey && event.keyCode === 73)) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J or Cmd+Option+J
+            else if ((event.ctrlKey && event.shiftKey && event.keyCode === 74) || (event.metaKey && event.altKey && event.keyCode === 74)) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+U or Cmd+Option+U or Cmd+U (View Source)
+            else if ((event.ctrlKey && event.keyCode === 85) || (event.metaKey && event.altKey && event.keyCode === 85) || (event.metaKey && event.keyCode === 85)) {
+                event.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+C or Cmd+Option+C (Inspect Element Picker)
+            else if ((event.ctrlKey && event.shiftKey && event.keyCode === 67) || (event.metaKey && event.altKey && event.keyCode === 67)) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Advanced Anti-Inspect: Debugger Trap
+        // This will hang the browser devtools if someone manages to open them,
+        // and clears the page content.
+        setInterval(function () {
+            var start = new Date().getTime();
+            debugger;
+            var end = new Date().getTime();
+            if (end - start > 100) {
+                document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px; font-family:sans-serif;'>DevTools/Inspect Element is strictly prohibited on this application.</h1>";
+                window.location.replace("about:blank");
+            }
+        }, 100);
+
+        // Prevent dragging of any images/text which could expose context menus sometimes
+        window.ondragstart = function () { return false; } 
+    </script>
+</body>
+
+</html>
