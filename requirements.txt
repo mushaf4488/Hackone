@@ -8,3 +8,4 @@ dnspython
 flask
 flask-socketio
 gunicorn
+gevent>=24.10.1
